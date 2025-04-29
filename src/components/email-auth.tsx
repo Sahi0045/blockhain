@@ -19,11 +19,15 @@ export default function EmailAuth() {
   const chains = useChains();
   const chainsIds = chains.map((chain) => chain.id);
   const { data: wallet } = useWalletClient();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+
     try {
-      // Send verification email
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -32,10 +36,12 @@ export default function EmailAuth() {
       });
 
       if (error) throw error;
-      toast.success("Verification email sent! Please check your inbox.");
-    } catch (error) {
-      toast.error("Error sending verification email");
-      console.error(error);
+      setIsVerified(true);
+      toast.success("Check your email for the verification link!");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,11 +118,13 @@ export default function EmailAuth() {
                 placeholder="Enter your email"
               />
             </div>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-50"
             >
-              Send Verification Email
+              {loading ? 'Sending...' : 'Send Verification Link'}
             </Button>
           </form>
         ) : (

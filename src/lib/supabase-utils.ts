@@ -1,8 +1,6 @@
 import { supabase } from './supabase';
 import { Database } from './database.types';
 
-type Tables = Database['public']['Tables'];
-
 // Auth Utilities
 export async function signUp(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({
