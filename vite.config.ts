@@ -13,6 +13,8 @@ export default defineConfig(({ mode }) => {
     esbuild:{
       logOverride:{
         '@typescript-eslint/no-unused-vars': 'silent',
+        'TS6133': 'silent',
+        'TS6196': 'silent'
       }
     },
     
