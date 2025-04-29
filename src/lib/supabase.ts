@@ -1,44 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
 
-// Get environment variables
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Debug environment variables
-console.log('Environment Variables:', {
-  VITE_SUPABASE_URL: supabaseUrl,
-  VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? '***' : undefined,
-  VITE_RELAY: process.env.VITE_RELAY
-});
+console.log('Supabase URL:', supabaseUrl);
+console.log('Supabase Anon Key:', supabaseAnonKey ? '***' : 'missing');
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing environment variables:', {
-    supabaseUrl: !!supabaseUrl,
-    supabaseAnonKey: !!supabaseAnonKey
-  });
-  throw new Error(
-    'Missing Supabase environment variables. Please check your .env file and make sure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.'
-  );
+  throw new Error('Missing Supabase environment variables. Please check your .env.production file.');
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
-// Test function to verify Supabase connection
-export async function testSupabaseConnection() {
+// Test connection
+export const testSupabaseConnection = async () => {
   try {
     const { data, error } = await supabase.from('users').select('*').limit(1);
     if (error) throw error;
-    console.log('Supabase connection successful!');
+    console.log('Supabase connection test successful');
     return true;
   } catch (error) {
-    console.error('Supabase connection failed:', error);
+    console.error('Supabase connection test failed:', error);
     return false;
   }
-} 
+}; 

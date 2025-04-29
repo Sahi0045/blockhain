@@ -26,6 +26,25 @@ export default defineConfig(({ mode }) => {
       'process.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY),
       'process.env.VITE_RELAY': JSON.stringify(env.VITE_RELAY),
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      'process.env.VITE_APP_ENV': JSON.stringify(env.VITE_APP_ENV),
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: mode === 'production',
+      minify: mode === 'production',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            supabase: ['@supabase/supabase-js'],
+          },
+        },
+      },
+    },
+    server: {
+      port: 3000,
+      strictPort: true,
     },
   }
 })
