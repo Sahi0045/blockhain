@@ -1,6 +1,10 @@
 import { supabase } from './supabase';
 import { Database } from './database.types';
 
+type User = Database['public']['Tables']['users']['Row'];
+type UBIDistribution = Database['public']['Tables']['ubi_distributions']['Row'];
+type VerificationAttempt = Database['public']['Tables']['verification_attempts']['Row'];
+
 // Auth Utilities
 export async function signUp(email: string, password: string) {
   const { data, error } = await supabase.auth.signUp({
@@ -26,7 +30,7 @@ export async function signOut() {
 }
 
 // User Utilities
-export async function updateUserWallet(walletAddress: string) {
+export async function updateUserWallet(walletAddress: string): Promise<User> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('No authenticated user');
 
@@ -47,7 +51,7 @@ export async function createUBIDistribution(
   amount: number,
   chainId: number,
   transactionHash: string
-) {
+): Promise<UBIDistribution> {
   const { data, error } = await supabase
     .from('ubi_distributions')
     .insert({
@@ -67,7 +71,7 @@ export async function createUBIDistribution(
 export async function updateUBIDistributionStatus(
   distributionId: string,
   status: 'completed' | 'failed'
-) {
+): Promise<UBIDistribution> {
   const { data, error } = await supabase
     .from('ubi_distributions')
     .update({ status })
@@ -84,7 +88,7 @@ export async function createVerificationAttempt(
   userId: string,
   email: string,
   ipAddress?: string
-) {
+): Promise<VerificationAttempt> {
   const { data, error } = await supabase
     .from('verification_attempts')
     .insert({
@@ -103,7 +107,7 @@ export async function createVerificationAttempt(
 export async function updateVerificationStatus(
   attemptId: string,
   status: 'verified' | 'failed'
-) {
+): Promise<VerificationAttempt> {
   const { data, error } = await supabase
     .from('verification_attempts')
     .update({ status })
@@ -116,7 +120,7 @@ export async function updateVerificationStatus(
 }
 
 // Query Utilities
-export async function getUserUBIDistributions(userId: string) {
+export async function getUserUBIDistributions(userId: string): Promise<UBIDistribution[]> {
   const { data, error } = await supabase
     .from('ubi_distributions')
     .select('*')
@@ -127,7 +131,7 @@ export async function getUserUBIDistributions(userId: string) {
   return data;
 }
 
-export async function getUserVerificationStatus(userId: string) {
+export async function getUserVerificationStatus(userId: string): Promise<boolean> {
   const { data, error } = await supabase
     .from('users')
     .select('is_verified')
